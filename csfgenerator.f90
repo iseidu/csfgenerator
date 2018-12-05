@@ -25,7 +25,7 @@
       character :: char7*5,char8*26,charr*55,str1*46,str2*46,str3,&
                    char0*26
       character :: char9*5,char10*34,fmt5*80,char21*9,char22*2,label*2,&
-                   char33*2
+                   char33*2,arg*32
       integer, allocatable :: iocc(:),ntm(:),nbocc(:,:),nci(:),&
                               tmpocc(:),isocc(:)
       real(dp)      :: coef
@@ -38,18 +38,25 @@
 !c     Unoccupied: 0
 !c     Singly occupied: 1 or 2
 
-      inquire(file='cvsout3',exist=lexist)
-      if (lexist) then
-         open(47,file='cvsout3',form='formatted',status='old')
-      else
-         inquire(file='out3',exist=lxst)
-         if (lxst) then
-            open(47,file='out3',form='formatted',status='old')
+      call get_command_argument(1,arg)
+      if (len_trim(arg) == 0) then
+         inquire(file='cvsout3',exist=lexist)
+         if (lexist) then
+            open(47,file='cvsout3',form='formatted',status='old')
          else
-            write(6,*) 'DFT/MRCI output file (cvsout3 or out3) not &
-                        found!'
-            stop
+            inquire(file='out3',exist=lxst)
+            if (lxst) then
+               open(47,file='out3',form='formatted',status='old')
+            else
+               write(6,*) 'DFT/MRCI output file (cvsout3 or out3) not &
+                           &found!'
+               stop 'DFT/MRCI output file (cvsout3 or out3) not &
+                           &found!'
+            endif
          endif
+      else
+         write(6,*)'Command line DFT/MRCI output file: ',trim(arg)
+         open(47,file=arg,form='formatted',status='old')
       endif
 
 !     Check if calculation was run in c1, abort if it wasn't
@@ -3916,4 +3923,4 @@
 
       deallocate(mo2as,ntm)
 
-      end
+    end program csfgenerator
